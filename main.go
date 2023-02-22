@@ -33,15 +33,3 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	fmt.Fprint(w, "<h1>No contact info available at this time...</h1>")
 }
-
-// func pathHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.URL.Path {
-// 	case "/":
-// 		homeHandler(w, r)
-// 	case "/contact":
-// 		contactHandler(w, r)
-// 	default:
-// 		http.Error(w, "Page not found", http.StatusNotFound)
-// 		//http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-// 	}
-// }
