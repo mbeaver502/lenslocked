@@ -24,17 +24,17 @@ func main() {
 	http.ListenAndServe(":3000", r)
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func executeTemplate(w http.ResponseWriter, filepath string, data any) {
 	w.Header().Set("Content-Type", "text/html")
 
-	tpl, err := template.ParseFiles(filepath.Join("templates", "home.gohtml"))
+	tpl, err := template.ParseFiles(filepath)
 	if err != nil {
 		log.Printf("parsing template: %v", err)
 		http.Error(w, "There was an error parsing the template.", http.StatusInternalServerError)
 		return
 	}
 
-	err = tpl.Execute(w, nil)
+	err = tpl.Execute(w, data)
 	if err != nil {
 		log.Printf("executing template: %v", err)
 		// Note: the status code won't get updated if data has already been written to `w` (i.e., by `tpl.Execute()`)
@@ -43,22 +43,14 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	tplPath := filepath.Join("templates", "home.gohtml")
+	executeTemplate(w, tplPath, nil)
+}
+
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-
-	tpl, err := template.ParseFiles(filepath.Join("templates", "contact.gohtml"))
-	if err != nil {
-		log.Printf("parsing template: %v", err)
-		http.Error(w, "There was an error parsing the template.", http.StatusInternalServerError)
-		return
-	}
-
-	err = tpl.Execute(w, nil)
-	if err != nil {
-		log.Printf("executing template: %v", err)
-		http.Error(w, "There was an error executing the template.", http.StatusInternalServerError)
-		return
-	}
+	tplPath := filepath.Join("templates", "contact.gohtml")
+	executeTemplate(w, tplPath, nil)
 }
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
