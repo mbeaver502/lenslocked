@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/mbeaver502/lenslocked/views"
 )
 
 func main() {
@@ -24,36 +24,41 @@ func main() {
 	http.ListenAndServe(":3000", r)
 }
 
-func executeTemplate(w http.ResponseWriter, filepath string, data any) {
-	w.Header().Set("Content-Type", "text/html")
-
-	tpl, err := template.ParseFiles(filepath)
-	if err != nil {
-		log.Printf("parsing template: %v", err)
-		http.Error(w, "There was an error parsing the template.", http.StatusInternalServerError)
-		return
-	}
-
-	err = tpl.Execute(w, data)
-	if err != nil {
-		log.Printf("executing template: %v", err)
-		// Note: the status code won't get updated if data has already been written to `w` (i.e., by `tpl.Execute()`)
-		http.Error(w, "There was an error executing the template.", http.StatusInternalServerError)
-		return
-	}
-}
-
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	tplPath := filepath.Join("templates", "home.gohtml")
-	executeTemplate(w, tplPath, nil)
+
+	t, err := views.Parse(tplPath)
+	if err != nil {
+		log.Printf("%v", err)
+		http.Error(w, "Error while parsing template.", http.StatusInternalServerError)
+		return
+	}
+
+	t.Execute(w, r)
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 	tplPath := filepath.Join("templates", "contact.gohtml")
-	executeTemplate(w, tplPath, nil)
+
+	t, err := views.Parse(tplPath)
+	if err != nil {
+		log.Printf("%v", err)
+		http.Error(w, "Error while parsing template.", http.StatusInternalServerError)
+		return
+	}
+
+	t.Execute(w, r)
 }
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
 	tplPath := filepath.Join("templates", "faq.gohtml")
-	executeTemplate(w, tplPath, nil)
+
+	t, err := views.Parse(tplPath)
+	if err != nil {
+		log.Printf("%v", err)
+		http.Error(w, "Error while parsing template.", http.StatusInternalServerError)
+		return
+	}
+
+	t.Execute(w, r)
 }
