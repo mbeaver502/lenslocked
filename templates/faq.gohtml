@@ -1,3 +1,4 @@
+{{define "page"}}
 <h1>Frequently Asked Questions</h1>
 
 <ul>
@@ -5,6 +6,7 @@
         {{template "qa" .}}
     {{end}}
 </ul>
+{{end}}
 
 {{define "qa"}}
 <li><b>{{.Question}}</b> {{.Answer}}</li>
