@@ -1,32 +1,35 @@
 package main
 
 import (
-	"html/template"
-	"os"
+	"errors"
+	"fmt"
 )
 
-type User struct {
-	Name string
-	Bio  string // template.HTML will NOT be encoded automatically
+func main() {
+	err := CreateOrg()
+	fmt.Println(err)
 }
 
-func main() {
-	// file path is relative to the binary
-	t, err := template.ParseFiles("hello.gohtml")
+func Connect() error {
+	return errors.New("connection failed")
+}
+
+func CreateUser() error {
+	err := Connect()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("create user: %w", err)
 	}
 
-	user := User{
-		Name: "John Doe",
-		// html/template will encode this -- UNLESS the type is template.HTML
-		// text/template will NOT encode this
-		Bio: `<script>alert("Haha, you have been h4x0r3d!");</script>`,
+	// do stuff...
+
+	return nil
+}
+
+func CreateOrg() error {
+	err := CreateUser()
+	if err != nil {
+		return fmt.Errorf("create org: %w", err)
 	}
 
-	// We can give any type for `data`
-	err = t.Execute(os.Stdout, user)
-	if err != nil {
-		panic(err)
-	}
+	return nil
 }
