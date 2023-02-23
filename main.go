@@ -24,41 +24,28 @@ func main() {
 	http.ListenAndServe(":3000", r)
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "home.gohtml")
-
-	t, err := views.Parse(tplPath)
+func executeTemplate(w http.ResponseWriter, filepath string, data any) {
+	t, err := views.Parse(filepath)
 	if err != nil {
 		log.Printf("%v", err)
 		http.Error(w, "Error while parsing template.", http.StatusInternalServerError)
 		return
 	}
 
-	t.Execute(w, r)
+	t.Execute(w, data)
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	tplPath := filepath.Join("templates", "home.gohtml")
+	executeTemplate(w, tplPath, nil)
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 	tplPath := filepath.Join("templates", "contact.gohtml")
-
-	t, err := views.Parse(tplPath)
-	if err != nil {
-		log.Printf("%v", err)
-		http.Error(w, "Error while parsing template.", http.StatusInternalServerError)
-		return
-	}
-
-	t.Execute(w, r)
+	executeTemplate(w, tplPath, nil)
 }
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
 	tplPath := filepath.Join("templates", "faq.gohtml")
-
-	t, err := views.Parse(tplPath)
-	if err != nil {
-		log.Printf("%v", err)
-		http.Error(w, "Error while parsing template.", http.StatusInternalServerError)
-		return
-	}
-
-	t.Execute(w, r)
+	executeTemplate(w, tplPath, nil)
 }
