@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/mbeaver502/lenslocked/controllers"
+	"github.com/mbeaver502/lenslocked/templates"
 	"github.com/mbeaver502/lenslocked/views"
 )
 
@@ -26,6 +26,6 @@ func main() {
 }
 
 func createHandler(filename string) http.HandlerFunc {
-	tpl := views.Must(views.Parse(filepath.Join("templates", filename)))
+	tpl := views.Must(views.ParseFS(templates.FS, filename))
 	return controllers.StaticHandler(tpl)
 }
