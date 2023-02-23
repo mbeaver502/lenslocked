@@ -13,14 +13,9 @@ import (
 func main() {
 	r := chi.NewRouter()
 
-	tpl := views.Must(views.Parse(filepath.Join("templates", "home.gohtml")))
-	r.Get("/", controllers.StaticHandler(tpl))
-
-	tpl = views.Must(views.Parse(filepath.Join("templates", "contact.gohtml")))
-	r.Get("/contact", controllers.StaticHandler(tpl))
-
-	tpl = views.Must(views.Parse(filepath.Join("templates", "faq.gohtml")))
-	r.Get("/faq", controllers.StaticHandler(tpl))
+	r.Get("/", controllers.StaticHandler(parseTemplate("home.gohtml")))
+	r.Get("/contact", controllers.StaticHandler(parseTemplate("contact.gohtml")))
+	r.Get("/faq", controllers.StaticHandler(parseTemplate("faq.gohtml")))
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
@@ -28,4 +23,8 @@ func main() {
 
 	fmt.Println("Starting server on :3000...")
 	http.ListenAndServe(":3000", r)
+}
+
+func parseTemplate(filename string) views.Template {
+	return views.Must(views.Parse(filepath.Join("templates", filename)))
 }
