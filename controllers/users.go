@@ -34,6 +34,26 @@ func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
 	u.Templates.SignIn.Execute(w, data)
 }
 
+func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		Email    string
+		Password string
+	}
+
+	data.Email = r.FormValue("email")
+	data.Password = r.FormValue("password")
+
+	user, err := u.UserService.Authenticate(data.Email, data.Password)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("Authenticated user:", user)
+	fmt.Fprintf(w, "Authenticated user: %+v", user)
+}
+
 func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 	// We can use PostFormValue to automatically parse the form
 	// before retrieving a value (if it exists), but we ignore
