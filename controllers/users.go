@@ -2,13 +2,17 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/mbeaver502/lenslocked/models"
 )
 
 type Users struct {
 	Templates struct {
 		New Template
 	}
+	UserService *models.UserService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -23,20 +27,19 @@ func (u Users) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) Create(w http.ResponseWriter, r *http.Request) {
-	// err := r.ParseForm()
-	// if err != nil {
-	// 	http.Error(w, "Failed to parse form", http.StatusBadRequest)
-	// 	return
-	// }
-
-	// email := r.PostForm.Get("email")
-	// password := r.PostForm.Get("password")
-
 	// We can use PostFormValue to automatically parse the form
 	// before retrieving a value (if it exists), but we ignore
 	// any parse errors that occur.
 	email := r.PostFormValue("email")
 	password := r.PostFormValue("password")
 
-	fmt.Fprint(w, email, password)
+	user, err := u.UserService.Create(email, password)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("User created:", email)
+	fmt.Fprintf(w, "User created: %+v", user)
 }
