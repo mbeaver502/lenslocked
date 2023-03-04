@@ -78,3 +78,14 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 	log.Println("User created:", email)
 	fmt.Fprintf(w, "User created: %+v", user)
 }
+
+func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	email, err := r.Cookie("email")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "The email cookie could not be read.", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "Email cookie: %s\n", email.Value)
+}
