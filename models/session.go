@@ -2,6 +2,9 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
+
+	"github.com/mbeaver502/lenslocked/rand"
 )
 
 type Session struct {
@@ -20,9 +23,22 @@ type SessionService struct {
 }
 
 func (ss *SessionService) Create(userID uint) (*Session, error) {
-	// TODO: Create the session token
-	// TODO: Implement SessionService.Create
-	return nil, nil
+	token, err := rand.SessionToken()
+	if err != nil {
+		return nil, fmt.Errorf("create: %w", err)
+	}
+
+	// TODO: Hash the session token
+
+	session := Session{
+		UserID: userID,
+		Token:  token,
+		//TokenHash: ???,
+	}
+
+	// TODO: Store session in DB
+
+	return &session, nil
 }
 
 func (ss *SessionService) User(token string) (*User, error) {
