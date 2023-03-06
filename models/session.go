@@ -7,6 +7,10 @@ import (
 	"github.com/mbeaver502/lenslocked/rand"
 )
 
+const (
+	MinBytesPerSessionToken = 32
+)
+
 type Session struct {
 	ID     uint
 	UserID uint
@@ -19,11 +23,12 @@ type Session struct {
 }
 
 type SessionService struct {
-	DB *sql.DB
+	DB                   *sql.DB
+	BytesPerSessionToken int
 }
 
 func (ss *SessionService) Create(userID uint) (*Session, error) {
-	token, err := rand.SessionToken()
+	token, err := ss.sessionToken()
 	if err != nil {
 		return nil, fmt.Errorf("create: %w", err)
 	}
@@ -44,4 +49,13 @@ func (ss *SessionService) Create(userID uint) (*Session, error) {
 func (ss *SessionService) User(token string) (*User, error) {
 	// TODO: Implement SessionService.User
 	return nil, nil
+}
+
+func (ss *SessionService) sessionToken() (string, error) {
+	n := ss.BytesPerSessionToken
+	if n < MinBytesPerSessionToken {
+		n = MinBytesPerSessionToken
+	}
+
+	return rand.String(n)
 }
