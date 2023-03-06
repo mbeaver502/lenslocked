@@ -3,7 +3,7 @@ create table sessions (
     user_id int unique not null,
     token_hash text unique not null,
 
-    foreign key (user_id) references users (id)
+    foreign key (user_id) references users (id) on delete cascade
 );
 
 -- alter table sessions add constraint fk_sessions_user_id foreign key (user_id) references users (id);
