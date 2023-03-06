@@ -1,7 +1,9 @@
 package models
 
 import (
+	"crypto/sha256"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/mbeaver502/lenslocked/rand"
@@ -33,12 +35,10 @@ func (ss *SessionService) Create(userID uint) (*Session, error) {
 		return nil, fmt.Errorf("create: %w", err)
 	}
 
-	// TODO: Hash the session token
-
 	session := Session{
-		UserID: userID,
-		Token:  token,
-		//TokenHash: ???,
+		UserID:    userID,
+		Token:     token,
+		TokenHash: ss.hash(token),
 	}
 
 	// TODO: Store session in DB
@@ -58,4 +58,9 @@ func (ss *SessionService) sessionToken() (string, error) {
 	}
 
 	return rand.String(n)
+}
+
+func (ss *SessionService) hash(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return base64.URLEncoding.EncodeToString(hash[:])
 }
