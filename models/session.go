@@ -85,6 +85,17 @@ func (ss *SessionService) User(token string) (*User, error) {
 	return &user, nil
 }
 
+func (ss *SessionService) Delete(token string) error {
+	hash := ss.hash(token)
+
+	_, err := ss.DB.Exec(`delete from sessions where token_hash = $1`, hash)
+	if err != nil {
+		return fmt.Errorf("delete: %w", err)
+	}
+
+	return nil
+}
+
 func (ss *SessionService) sessionToken() (string, error) {
 	n := ss.BytesPerSessionToken
 	if n < MinBytesPerSessionToken {
