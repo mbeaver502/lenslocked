@@ -13,7 +13,8 @@ type Users struct {
 		New    Template
 		SignIn Template
 	}
-	UserService *models.UserService
+	UserService    *models.UserService
+	SessionService *models.SessionService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -50,16 +51,22 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	session, err := u.SessionService.Create(user.ID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
 	cookie := http.Cookie{
-		Name:     "email",
-		Value:    user.Email,
+		Name:     "session",
+		Value:    session.Token,
 		Path:     "/",
 		HttpOnly: true,
 	}
 	http.SetCookie(w, &cookie)
 
-	log.Println("Authenticated user:", user)
-	fmt.Fprintf(w, "Authenticated user: %+v", user)
+	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
 func (u Users) Create(w http.ResponseWriter, r *http.Request) {
@@ -77,16 +84,39 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("User created:", email)
-	fmt.Fprintf(w, "User created: %+v", user)
-}
 
-func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
-	email, err := r.Cookie("email")
+	session, err := u.SessionService.Create(user.ID)
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "The email cookie could not be read.", http.StatusInternalServerError)
+		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
 
-	fmt.Fprintf(w, "Email cookie: %s\n", email.Value)
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    session.Token,
+		Path:     "/",
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+
+	http.Redirect(w, r, "/users/me", http.StatusFound)
+}
+
+func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	tokenCookie, err := r.Cookie("session")
+	if err != nil {
+		log.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+
+	user, err := u.SessionService.User(tokenCookie.Value)
+	if err != nil {
+		log.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+		return
+	}
+
+	fmt.Fprintf(w, "Current User: %+v\n", user)
 }
